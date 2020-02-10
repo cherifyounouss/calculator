@@ -2,13 +2,18 @@
  * Calculator
  */
 import java.awt.*;
+import java.awt.event.*;
+
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.io.File;
 
+import javax.script.*;
+
 public class Calculator extends JPanel{
 
-    Screen screen;
+    private Screen screen;
+    private StringBuilder stringCalcul = new StringBuilder();
 
     public Calculator() {
         screen = new Screen();
@@ -18,12 +23,13 @@ public class Calculator extends JPanel{
         add(new Clavier());
     }
 
-    class Clavier extends JPanel{
+    class Clavier extends JPanel implements ActionListener{
         //private static final int NUMBEROFBUTTONS = 16;
         public int[] gridX = {0, 1, 2, 3, 0, 1, 2, 3, 0, 1, 2, 3, 0, 1, 2, 3};
         public int[] gridY = {0, 0, 0, 0, 1, 1, 1, 1, 2, 2, 2, 2, 3, 3, 3, 3};
-        //public static int[] width = {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1};
-        //public static int[] height = {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1};
+        ScriptEngineManager mgr = new ScriptEngineManager();
+        ScriptEngine engine = mgr.getEngineByName("JavaScript");
+        boolean newCalcul = true;
 
         private String[] buttonValues = "7 8 9 / 4 5 6 * 1 2 3 - . 0 = +".split(" ");
         private JButton[] buttons = new JButton[buttonValues.length];
@@ -40,7 +46,36 @@ public class Calculator extends JPanel{
                 constraints.gridheight = 1;
                 buttons[i] = new MyButton(Color.WHITE, new Color(187, 183, 189), buttonValues[i]);
                 buttons[i].setMargin(new Insets(15, 15, 15, 15));
+                buttons[i].addActionListener(this);
                 add(buttons[i], constraints);
+            }
+        }
+
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            String buttonValue = e.getActionCommand();
+            String result = null;
+            // If it is a new calcul blank the screen
+            if (newCalcul)
+                screen.setText("");
+            if (buttonValue.equals("=")) {
+                if (stringCalcul.toString().length() > 0) {
+                    try {
+                        result = (engine.eval(stringCalcul.toString())).toString();
+                        screen.setText(result);
+                    } catch (Exception exception) {
+                        JOptionPane.showMessageDialog(this, exception.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+                    }
+                    finally {
+                        stringCalcul.delete(0, stringCalcul.toString().length());
+                        newCalcul = true;
+                    }
+                }
+            }
+            else {
+                stringCalcul.append(e.getActionCommand());
+                screen.setText(stringCalcul.toString());
+                newCalcul = false;
             }
         }
     }
