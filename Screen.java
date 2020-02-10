@@ -7,7 +7,7 @@ import javax.swing.*;
 public class Screen extends JTextField{
 
     public Screen() {
-        setPreferredSize(new Dimension(300, 75));
+        setPreferredSize(new Dimension(300, 100));
         setFont(new Font("TimesRoman", Font.CENTER_BASELINE, 30));
         setForeground(new Color(187, 183, 189));
         setBackground(Color.WHITE);
